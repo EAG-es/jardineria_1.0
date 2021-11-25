@@ -9,7 +9,7 @@
 <% producto.iniciar_javabean(request, response, out, session);%>
 <div>
     <h2>${producto.getMensaje()}</h2>
-    <form action="${pageContext.request.contextPath}/index/producto/${producto.getCreacion()}">
+    <form action="${pageContext.request.contextPath}/index/producto/${producto.getModificacion()}/${producto.leer_dato_url(2)}">
         <table width="100%">
         <tr><td style="text-align: right">
             <label>Codigo de Producto* </label></td><td>
@@ -40,7 +40,7 @@
                 <input type="number" name="<%=innui.modelo.jardineria.Producto.precio_proveedor_tex%>" value="${producto.producto.precio_proveedor}"/>
         </td></tr>
         <tr><td style="text-align: right">
-        <input type="submit" name="${producto.getCreacion()}" value="Enviar"/>
+        <input type="submit" name="${producto.getModificacion()}" value="Enviar"/>
         </td></td><td>
             Los campos con * son obligatorios. 
         </td></tr>

@@ -13,7 +13,7 @@ import java.util.List;
  *
  * @author informatica
  */
-public class Controlador_vista {
+public class Controladores_vistas {
     public static String index = "index";
     public static String consulta = "consulta";
     public static String modificacion = "modificacion";

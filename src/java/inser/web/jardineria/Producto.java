@@ -6,12 +6,13 @@
 package inser.web.jardineria;
 
 import innui.jdbc.jardineria.MySql;
-import static innui.jdbc.jardineria.MySql.clave;
-import static innui.jdbc.jardineria.MySql.jdbc_uri;
-import static innui.jdbc.jardineria.MySql.usuario;
+import static innui.jdbc.jardineria.MySql.jdbc_clave_tex;
+import static innui.jdbc.jardineria.MySql.jdbc_uri_tex;
+import static innui.jdbc.jardineria.MySql.jdbc_usuario_tex;
 import innui.modelo.jardineria.Producto_operaciones;
-import static inser.web.utilidades.Controlador_vista.borrado;
-import static inser.web.utilidades.Controlador_vista.consulta;
+import static inser.web.utilidades.Controladores_vistas.borrado;
+import static inser.web.utilidades.Controladores_vistas.consulta;
+import inser.web.utilidades.Paginacion_busquedas_ordenaciones;
 import java.util.List;
 
 /**
@@ -19,14 +20,23 @@ import java.util.List;
  * @author informatica
  */
 public class Producto extends Index {
+    public int pagina_tam = 15;   
     public Producto_operaciones producto_operaciones;
     public List <innui.modelo.jardineria.Producto> consulta_lista;
     public MySql mySql;
+    public String jdbc_uri = null;
+    public String jdbc_usuario = null;
+    public String jdbc_clave = null;
     public String mensaje="";
     public innui.modelo.jardineria.Producto producto;
+    public Paginacion_busquedas_ordenaciones paginacion_busquedas_ordenaciones;
 
     public innui.modelo.jardineria.Producto getProducto() {
         return producto;
+    }
+
+    public Paginacion_busquedas_ordenaciones getPaginacion_busquedas_ordenaciones() {
+        return paginacion_busquedas_ordenaciones;
     }
 
     public String getMensaje() {
@@ -40,16 +50,37 @@ public class Producto extends Index {
     }
     
     public Producto() {
-        producto_operaciones = new Producto_operaciones();
         mySql = new MySql();
+        producto_operaciones = new Producto_operaciones();
+        paginacion_busquedas_ordenaciones = new Paginacion_busquedas_ordenaciones();
+        paginacion_busquedas_ordenaciones.pagina_tam = pagina_tam;
     }
 
+    /**
+     * Obtiene los valores de contexto del web.xml
+     */
+    public boolean configurar_contexto() {
+        String [] error = { "" }; //NOI18N
+        if (error_ret) {
+           jdbc_uri = httpServletRequest.getServletContext().getInitParameter(jdbc_uri_tex);
+           jdbc_usuario = httpServletRequest.getServletContext().getInitParameter(jdbc_usuario_tex);
+           jdbc_clave = httpServletRequest.getServletContext().getInitParameter(jdbc_clave_tex);
+        }
+        error_texto = error[0];
+        return error_ret;
+    }
+
+    
     public void procesar() {
         String [] error = { "" }; //NOI18N
         String vista = null;
         String codigo_producto = null;
+        long filas_num = 0;
         if (error_ret) {
-            error_ret = mySql.conectar(jdbc_uri, usuario, clave, error);
+            configurar_contexto();
+        }
+        if (error_ret) {
+            error_ret = mySql.conectar(jdbc_uri, jdbc_usuario, jdbc_clave, error);
         }
         if (error_ret) {
             vista = vista(error);
@@ -58,8 +89,18 @@ public class Producto extends Index {
         if (error_ret) {
             producto_operaciones.connection = mySql.connection;
             if (vista.equals(consulta)) {
-                consulta_lista = producto_operaciones.listar(error);
-                error_ret = (null != consulta_lista);
+                error_ret = paginacion_busquedas_ordenaciones.procesar(httpServletRequest, error);
+                if (error_ret) {
+                    filas_num = producto_operaciones.contar_filas(error);
+                    error_ret = (filas_num != -1);
+                }
+                if (error_ret) {
+                    error_ret = paginacion_busquedas_ordenaciones.poner_total_filas_num(filas_num, error);
+                }
+                if (error_ret) {
+                    consulta_lista = producto_operaciones.listar(paginacion_busquedas_ordenaciones, error);
+                    error_ret = (null != consulta_lista);
+                }
             } else if (vista.equals(borrado)) {
                 codigo_producto = leer_dato_url(2, error);
                 error_ret = (codigo_producto != null);
@@ -79,6 +120,19 @@ public class Producto extends Index {
                 if (error_ret) {
                     if (httpServletRequest.getParameter(creacion) != null) {
                         crear();
+                    }
+                }
+            } else if (vista.equals(modificacion)) {
+                if (error_ret) {
+                    codigo_producto = leer_dato_url(2, error);
+                    error_ret = (codigo_producto != null);
+                }
+                if (error_ret) {
+                    producto = producto_operaciones.encontrar(codigo_producto, error);
+                }
+                if (error_ret) {
+                    if (httpServletRequest.getParameter(modificacion) != null) {
+                        modificar();
                     }
                 }
             }
@@ -106,6 +160,26 @@ public class Producto extends Index {
             escribir_error(error[0]);
         } else {
             escribir_mensaje("Registro creado con éxito. ");
+        }
+        error_texto = error[0];
+    }
+    
+    public void modificar() {
+        String [] error = { "" }; //NOI18N
+        producto = leer_formulario_creacion_modificacion(error);
+        error_ret = (producto != null && error[0].isBlank());
+        if (error_ret == false) {
+            if (producto.codigo_producto.isBlank() == false
+                    && producto.nombre.isBlank() == false)
+                error_ret = true;
+        }
+        if (error_ret) {
+            error_ret = producto_operaciones.modificar(producto, error);
+        }        
+        if (error_ret == false){
+            escribir_error(error[0]);
+        } else {
+            escribir_mensaje("Registro modificado con éxito. ");
         }
         error_texto = error[0];
     }

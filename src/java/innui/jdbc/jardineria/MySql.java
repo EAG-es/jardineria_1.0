@@ -14,9 +14,12 @@ import java.sql.DriverManager;
  */
 public class MySql {
     public Connection connection = null;
-    public static String jdbc_uri = "jdbc:mysql://localhost:3306/jardineria?zeroDateTimeBehavior=CONVERT_TO_NULL";
-    public static String usuario = "jardineria";
-    public static String clave = "2021jardineria";
+//    public static String jdbc_uri = "jdbc:mysql://localhost:3306/jardineria?zeroDateTimeBehavior=CONVERT_TO_NULL";
+//    public static String usuario = "jardineria";
+//    public static String clave = "2021jardineria";
+    public static String jdbc_uri_tex = "jdbc_uri";
+    public static String jdbc_usuario_tex = "jdbc_usuario";
+    public static String jdbc_clave_tex = "jdbc_clave";
     
     public boolean conectar(String uri, String usuario, String clave, String [] error) {
         boolean ret = true;

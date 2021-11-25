@@ -5,7 +5,7 @@
  */
 package inser.web.jardineria;
 
-import inser.web.utilidades.Controlador_vista;
+import inser.web.utilidades.Controladores_vistas;
 import inser.web.utilidades.Idiomas;
 import inser.web.utilidades.Redirecciones;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,7 +19,7 @@ import java.util.List;
  *
  * @author informatica
  */
-public class Index extends Controlador_vista implements Serializable {
+public class Index extends Controladores_vistas implements Serializable {
     public int serverPort_https = 8443;
     public HttpServletRequest httpServletRequest;
     public HttpServletResponse httpServletResponse;
@@ -66,7 +66,6 @@ public class Index extends Controlador_vista implements Serializable {
      */
     public boolean configurar_pagina() {
         String [] error = { "" }; //NOI18N
-//        iniciar_javabean(request, response, out, session);
         if (error_ret) {
             error_ret = Redirecciones.redirecionar_http_a_https(serverPort_https, httpServletRequest, httpServletResponse, error);
             if (error_ret) {
@@ -104,6 +103,23 @@ public class Index extends Controlador_vista implements Serializable {
         error_texto = error[0];
         return retorno;
     }
+    /**
+     * Devuelve uno de los datos de la url (parte * del pattern), el separador es el caracter "/" (comienzan desde 0)
+     * @param pos Posición del dato
+     * @return 
+     */
+    public String leer_dato_url(int pos) {
+        String [] error = { "" }; //NOI18N
+        String retorno = null;
+        if (pathinfo_lista != null) {
+            retorno = pathinfo_lista.get(pos);
+        } 
+        if (error_ret == false){
+             escribir_error(error[0]);
+        }
+        error_texto = error[0];
+        return retorno;
+    }    
     /**
      * Escribe un mensaje de error, si lo hay.
      * @return true si todo va bien, false si hay error
@@ -152,7 +168,6 @@ public class Index extends Controlador_vista implements Serializable {
     
     public void presentar(String nombre) {
         String [] error = { "" }; //NOI18N
-        List lista;
         String texto = "";
         if (error_ret) {
             texto = leer_columna_de_fila(nombre, fila, error);
@@ -181,11 +196,12 @@ public class Index extends Controlador_vista implements Serializable {
             lista = leer_lista();
             if (lista == null) {
                 error_ret = false;
-            } else if (fila >= lista.size()) {
-                error_ret = false;
-                fila = -1;
             } else {
                 fila = fila + 1;
+                if (fila >= lista.size()) {
+                    error_ret = false;
+                    fila = -1;
+                }
             }
         }
         if (error_ret == false) {

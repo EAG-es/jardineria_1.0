@@ -9,6 +9,18 @@
             30
         </session-timeout>
     </session-config>
+    <context-param>
+        <param-name>jdbc_uri</param-name>
+        <param-value>jdbc:mysql://localhost:3306/jardineria?zeroDateTimeBehavior=CONVERT_TO_NULL</param-value>
+    </context-param>
+    <context-param>
+        <param-name>jdbc_usuario</param-name>
+        <param-value>jardineria</param-value>
+    </context-param>
+    <context-param>
+        <param-name>jdbc_clave</param-name>
+        <param-value>2021jardineria</param-value>
+    </context-param>
     <servlet>
         <servlet-name>index</servlet-name>
         <jsp-file>/index/index.jsp</jsp-file>
